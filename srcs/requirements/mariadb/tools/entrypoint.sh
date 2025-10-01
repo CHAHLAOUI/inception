@@ -1,25 +1,21 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
-# كلمات السر واليوزر من env
-DB_NAME=$MYSQL_DATABASE
-DB_USER=$MYSQL_USER
-DB_PASS=$(cat $MYSQL_PASSWORD_FILE)
-DB_ROOT_PASS=$(cat $MYSQL_ROOT_PASSWORD_FILE)
+sleep 5
 
-# إذا مكاينش init, نعمل setup
-if [ ! -d "/var/lib/mysql/$DB_NAME" ]; then
-    mysqld_safe --skip-networking &
-    sleep 5
 
-    echo "CREATE DATABASE $DB_NAME;" | mysql -u root
-    echo "CREATE USER '$DB_USER'@'%' IDENTIFIED BY '$DB_PASS';" | mysql -u root
-    echo "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'%';" | mysql -u root
-    echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '$DB_ROOT_PASS';" | mysql -u root
-    echo "FLUSH PRIVILEGES;" | mysql -u root
+DB_ROOT_PASS=$(cat /run/secrets/db_root_pass)
+DB_USER_PASS=$(cat /run/secrets/db_user_pass)
 
-    mysqladmin -uroot -p$DB_ROOT_PASS shutdown
-    wait
-fi
+mysql -uroot <<-EOSQL
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_ROOT_PASS}';
+FLUSH PRIVILEGES;
 
-exec "$@"
+CREATE DATABASE IF NOT EXISTS ${DB_NAME};
+CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_USER_PASS}';
+GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%';
+FLUSH PRIVILEGES;
+EOSQL
+
+# Démarrer MariaDB au premier plan
+exec mysqld_safe --bind-address=0.0.0.0
