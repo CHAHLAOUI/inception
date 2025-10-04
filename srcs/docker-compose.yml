@@ -1,32 +1,85 @@
-version: "3.9"
+version: '3.8'
 
 services:
   mariadb:
-    build: ./requirements/mariadb           # مسار Dockerfile لماريادب
-    image: mariadb:custom                   # اسم الصورة بعد البناء
+    build: ./requirements/mariadb
     container_name: mariadb
-    ports:
-      - "3306:3306"
-    env_file:
-      - .env                                # ملف يحتوي على DB_ROOT_PASS, DB_USER, DB_USER_PASS, DB_NAME
     volumes:
-      - mariadb-data:/var/lib/mysql         # حفظ البيانات بشكل دائم
-      - ./requirements/mariadb/init_db.sh:/docker-entrypoint-initdb.d/init_db.sh:ro
-    networks:
-      - Inception
-    restart: unless-stopped
-    secrets:
-      - db_root_pass
-      - db_user_pass
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=somewordpress
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress
+      - MYSQL_PASSWORD=wordpress
+    expose:
+      - 3306
 
-secrets:
-  db_root_pass:
-    file: ../secrets/db_root_pass.txt
-  db_user_pass:
-    file: ../secrets/db_user_pass.txt
+  wordpress:
+    build: ./requirements/wordpress
+    container_name: wordpress
+    ports:
+      - "9000:9000"
+    restart: always
+    environment:
+      - WORDPRESS_DB_HOST=mariadb
+      - WORDPRESS_DB_USER=wordpress
+      - WORDPRESS_DB_PASSWORD=wordpress
+      - WORDPRESS_DB_NAME=wordpress
+    depends_on:
+      - mariadb
+
+  nginx:
+    build: ./requirements/nginx
+    container_name: nginx
+    ports:
+      - "443:443"
+    volumes:
+      - wordpress_data:/var/www/site
+    depends_on:
+      - wordpress
+    restart: always
 
 volumes:
-  mariadb-data:
+  db_data:
+  wordpress_data:
+version: '3.8'
 
-networks:
-  Inception:
+services:
+  db:
+    image: mariadb:10.6.4-focal
+    container_name: db
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=somewordpress
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress
+      - MYSQL_PASSWORD=wordpress
+    expose:
+      - 3306
+
+  wordpress:
+    image: wordpress:latest   # Dockerfile + wp_config.sh
+    container_name: wordpress
+    ports:
+      - "80:80"  # php-fpm port
+    restart: always
+    environment:
+      # Database connection
+      - WORDPRESS_DB_HOST=db:3306
+      - WORDPRESS_DB_USER=wordpress
+      - WORDPRESS_DB_PASSWORD=wordpress
+      - WORDPRESS_DB_NAME=wordpress
+      # WordPress admin account
+      - WP_ADMIN_USER=chahlaoui
+      - WP_ADMIN_PASSWORD=pass@chah_123
+      - WP_ADMIN_EMAIL=chahlaoui@gmail.com
+      - DOMAIN_NAME=achahlaoui.42.fr
+    depends_on:
+      - db
+
+volumes:
+  db_data:
+  wordpress_data:
