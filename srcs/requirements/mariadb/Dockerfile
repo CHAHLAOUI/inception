@@ -1,12 +1,11 @@
-# FROM debian:bullseye
+FROM debian:bullseye
 
-# RUN apt update && apt install mariadb-server  -y 
+RUN apt-get update && apt-get install -y mariadb-server && rm -rf /var/lib/apt/lists/*
 
-# RUN mkdir -p /var/lib/mysql && \
-#     chown -R mysql:mysql /var/lib/mysql 
+COPY tools/entrypoint.sh /usr/local/bin/
 
-# COPY tools/entrypoint.sh /usr/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/init_db.sh
 
-# RUN chmod +x /usr/bin/entrypoint.sh
+EXPOSE 3306
 
-# ENTRYPOINT ["bash", "entrypoint.sh"]
+CMD ["entrypoint.sh"]

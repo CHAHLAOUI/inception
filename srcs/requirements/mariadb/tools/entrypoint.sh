@@ -19,3 +19,14 @@
 
 # # Démarrer MariaDB au premier plan
 # exec mysqld_safe --bind-address=0.0.0.0
+#!/bin/bash
+service mariadb start
+
+# Create database and user
+mariadb -e "CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};"
+mariadb -e "CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '$(cat ${MYSQL_PASSWORD_FILE})';"
+mariadb -e "GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';"
+mariadb -e "FLUSH PRIVILEGES;"
+
+mysqladmin shutdown
+exec mysqld_safe

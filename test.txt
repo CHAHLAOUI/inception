@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  db:
+    build: ./srcs/requirements/mariadb
+    container_name: db
+    networks:
+      - wp_network
+    volumes:
+      - db_data:/var/lib/mysql
+    env_file:
+      - ./srcs/.env
+    restart: always
+
+  wordpress:
+    build: ./srcs/requirements/wordpress
+    container_name: wordpress
+    networks:
+      - wp_network
+    depends_on:
+      - db
+    volumes:
+      - wp_data:/var/www/html
+    env_file:
+      - ./srcs/.env
+    restart: always
+
+  nginx:
+    build: ./srcs/requirements/nginx
+    container_name: nginx
+    networks:
+      - wp_network
+    ports:
+      - "443:443"
+    depends_on:
+      - wordpress
+    restart: always
+
+networks:
+  wp_network:
+    driver: bridge
+
+volumes:
+  db_data:
+    driver: local
+    name: wil_db_data
+  wp_data:
+    driver: local
+    name: wil_wp_data
+
