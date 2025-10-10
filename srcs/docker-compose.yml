@@ -23,6 +23,8 @@ services:
       - mariadb
     secrets:
       - db_user_pass
+      - wp_admin_pass
+      - wp_user_pass
     volumes:
       - ${WP_VOLUME}:/var/www/html
     networks:
@@ -50,3 +52,7 @@ secrets:
     file: ../secrets/db_user_pass.txt
   db_root_pass:
     file: ../secrets/db_root_pass.txt
+  wp_admin_pass:
+    file: ../secrets/wp_admin_pass.txt
+  wp_user_pass:
+    file: ../secrets/wp_user_pass.txt

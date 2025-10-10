@@ -9,7 +9,7 @@ RUN mkdir -p /etc/nginx/ssl && \
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /etc/nginx/ssl/nginx.key \
     -out /etc/nginx/ssl/nginx.crt \
-    -subj "/C=MA/ST=Casablanca/L=Casablanca/O=Inception/CN=localhost"
+    -subj "/C=MA/ST=rabat/L=rabat/O=Inception/CN=localhost"
 
 # Copie 
 COPY ./tools/nginx.conf /etc/nginx/conf.d/default.conf
