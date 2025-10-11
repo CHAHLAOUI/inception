@@ -4,6 +4,8 @@ services:
   mariadb:
     build: ./requirements/mariadb
     container_name: mariadb
+    ports:
+      - "3306:3306"
     restart: always
     env_file: .env
     secrets:
@@ -17,6 +19,8 @@ services:
   wordpress:
     build: ./requirements/wordpress
     container_name: wordpress
+    ports:
+      - "9000:9000"
     restart: always
     env_file: .env
     depends_on:
@@ -43,16 +47,19 @@ services:
     networks:
       - inception
 
+# ========================
+# 🔗 NETWORK & SECRETS
+# ========================
 networks:
   inception:
     driver: bridge
 
 secrets:
-  db_user_pass:
-    file: ../secrets/db_user_pass.txt
   db_root_pass:
-    file: ../secrets/db_root_pass.txt
+    file: ../secrets/db_root_pass
+  db_user_pass:
+    file: ../secrets/db_user_pass
   wp_admin_pass:
-    file: ../secrets/wp_admin_pass.txt
+    file: ../secrets/wp_admin_pass
   wp_user_pass:
-    file: ../secrets/wp_user_pass.txt
+    file: ../secrets/wp_user_pass

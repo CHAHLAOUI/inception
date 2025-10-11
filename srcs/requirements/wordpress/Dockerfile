@@ -1,23 +1,11 @@
 FROM debian:bullseye
 
-RUN apt-get update -y && apt-get install -y \
-    php7.4 \
-    php7.4-fpm \
-    php7.4-mysql \
-    curl \
-    mariadb-client \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt  update && apt  upgrade -y && apt  install curl -y
 
+RUN apt install php php-fpm php-mysql mariadb-client wget -y
 
-RUN mkdir -p /var/www/site
+COPY tools/setup.sh /
 
-WORKDIR /var/www/site
+RUN  chmod +x setup.sh
 
-
-COPY ./tools/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-
-# EXPOSE 9000
-
-CMD ["bash", "/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT [ "./setup.sh" ]
