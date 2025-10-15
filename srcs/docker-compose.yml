@@ -12,7 +12,7 @@ services:
       - db_user_pass
       - db_root_pass
     volumes:
-      - $DB_VOLUME:/var/lib/mysql
+      - ${DB_VOLUME}:/var/lib/mysql
     networks:
       - inception
 
@@ -30,7 +30,7 @@ services:
       - wp_admin_pass
       - wp_user_pass
     volumes:
-      - $WP_VOLUME:/var/www/html
+      - ${WP_VOLUME}:/var/www/html
     networks:
       - inception
 
@@ -43,7 +43,7 @@ services:
     ports:
       - "443:443"
     volumes:
-      - $WP_VOLUME:/var/www/html
+      - ${WP_VOLUME}:/var/www/html
     networks:
       - inception
 

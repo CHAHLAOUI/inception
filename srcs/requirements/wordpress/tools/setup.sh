@@ -15,26 +15,32 @@ if ! command -v wp >/dev/null 2>&1; then
     mv wp-cli.phar /usr/local/bin/wp
 fi
 
-echo " Attente de MariaDB..."
+echo "⏳ Attente de MariaDB..."
 until mysqladmin ping -h mariadb --silent; do
-    echo "Waiting chablaoui ..."
+    echo "⌛ Waiting for MariaDB..."
     sleep 3
 done
 
-sleep 5
+echo "✅ MariaDB prête !"
 
-echo " MariaDB prête !"
-
-if [ ! -f wp-config.php ]; then
-    echo " Installation de WordPress..."
+# Vérifie si WordPress est déjà présent
+if [ ! -f /var/www/html/wp-load.php ]; then
+    echo "⚙️ Téléchargement de WordPress..."
     wp core download --allow-root
+else
+    echo "✅ WordPress déjà présent, pas besoin de le télécharger."
+fi
 
+# Crée le fichier de config et installe WP seulement si besoin
+if [ ! -f wp-config.php ]; then
+    echo "⚙️ Création du fichier wp-config.php..."
     wp config create --allow-root \
         --dbname="${MYSQL_DATABASE}" \
         --dbuser="${MYSQL_USER}" \
         --dbpass="${DB_USER_PASS}" \
         --dbhost="mariadb:3306"
 
+    echo "⚙️ Installation du site WordPress..."
     wp core install --allow-root \
         --url="https://${DOMAIN_NAME}" \
         --title="${WP_TITLE}" \
@@ -45,7 +51,7 @@ if [ ! -f wp-config.php ]; then
     wp user create "${WP_NEW_USER_NAME}" "${WP_NEW_USER_EMAIL}" \
         --role=author --user_pass="${WP_USER_PASS}" --allow-root
 else
-    echo "  WordPress déjà installé, rien à faire."
+    echo "✅ WordPress déjà configuré."
 fi
 
 echo "🚀 Lancement de PHP-FPM..."
