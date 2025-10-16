@@ -6,7 +6,7 @@ services:
     container_name: mariadb
     ports:
       - "3306:3306"
-    restart: always
+    # restart: always
     env_file: .env
     secrets:
       - db_user_pass
@@ -21,7 +21,7 @@ services:
     container_name: wordpress
     ports:
       - "9000:9000"
-    restart: always
+    # restart: always
     env_file: .env
     depends_on:
       - mariadb
@@ -37,9 +37,9 @@ services:
   nginx:
     build: ./requirements/nginx
     container_name: nginx
-    restart: always
-    depends_on:
-      - wordpress
+    # restart: always
+    # depends_on:
+    #   - wordpress
     ports:
       - "443:443"
     volumes:

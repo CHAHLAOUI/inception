@@ -2,8 +2,8 @@ FROM debian:bullseye
 
 RUN apt update && apt install mariadb-server  -y 
 
-RUN mkdir -p /var/lib/mysql && \
-    chown -R mysql:mysql /var/lib/mysql 
+RUN mkdir -p /var/lib/mysql &&  mkdir -p /run/mysqld &&\
+    chown -R mysql:mysql /var/lib/mysql /run/mysqld
 
 COPY tools/entrypoint.sh /usr/bin/entrypoint.sh
 
