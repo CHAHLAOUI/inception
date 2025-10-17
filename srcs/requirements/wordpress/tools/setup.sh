@@ -64,10 +64,10 @@ fi
 
 echo "🚀 Lancement de PHP-FPM..."
 
-# تعديل listen ليخدم على TCP port 9000
 sed -i 's|^listen = .*|listen = 0.0.0.0:9000|' /etc/php/7.4/fpm/pool.d/www.conf
 
 mkdir -p /run/php
+
 chown www-data:www-data /run/php
 
 exec php-fpm7.4 -F
