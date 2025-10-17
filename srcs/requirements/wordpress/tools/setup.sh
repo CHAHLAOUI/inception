@@ -7,7 +7,17 @@ WP_USER_PASS=$(cat /run/secrets/wp_user_pass)
 
 cd /var/www/html
 
-# Installation de WP-CLI 
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
+
+echo "Debug variables:"
+echo "WP_ADMIN_EMAIL = $WP_ADMIN_EMAIL"
+echo "MYSQL_DATABASE = $MYSQL_DATABASE"
+echo "MYSQL_USER = $MYSQL_USER"
+echo "DOMAIN_NAME = $DOMAIN_NAME"
+echo "WP_ADMIN_USER = $WP_ADMIN_USER"
+
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
+
 if ! command -v wp >/dev/null 2>&1; then
     echo "📦 Installation de WP-CLI..."
     curl -s -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
@@ -23,7 +33,6 @@ done
 
 echo "✅ MariaDB prête !"
 
-# Vérifie si WordPress est déjà présent
 if [ ! -f /var/www/html/wp-load.php ]; then
     echo "⚙️ Téléchargement de WordPress..."
     wp core download --allow-root
@@ -31,7 +40,6 @@ else
     echo "✅ WordPress déjà présent, pas besoin de le télécharger."
 fi
 
-# Crée le fichier de config et installe WP seulement si besoin
 if [ ! -f wp-config.php ]; then
     echo "⚙️ Création du fichier wp-config.php..."
     wp config create --allow-root \
@@ -55,4 +63,11 @@ else
 fi
 
 echo "🚀 Lancement de PHP-FPM..."
+
+# تعديل listen ليخدم على TCP port 9000
+sed -i 's|^listen = .*|listen = 0.0.0.0:9000|' /etc/php/7.4/fpm/pool.d/www.conf
+
+mkdir -p /run/php
+chown www-data:www-data /run/php
+
 exec php-fpm7.4 -F
