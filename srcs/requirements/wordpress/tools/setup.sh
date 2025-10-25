@@ -26,7 +26,7 @@ if ! command -v wp >/dev/null 2>&1; then
 fi
 
 echo "⏳ Attente de MariaDB..."
-until mysqladmin ping -h mariadb --silent; do
+until mysqladmin ping -h mariadb -u"${MYSQL_USER}" -p"$(cat /run/secrets/db_user_pass)" --silent; do
     echo "⌛ Waiting for MariaDB..."
     sleep 3
 done
@@ -64,10 +64,10 @@ fi
 
 echo "🚀 Lancement de PHP-FPM..."
 
-sed -i 's|^listen = .*|listen = 0.0.0.0:9000|' /etc/php/7.4/fpm/pool.d/www.conf
+sed -i 's|^listen = .*|listen = 0.0.0.0:9000|' /etc/php/8.2/fpm/pool.d/www.conf
 
 mkdir -p /run/php
 
 chown www-data:www-data /run/php
 
-exec php-fpm7.4 -F
+exec php-fpm8.2 -F
