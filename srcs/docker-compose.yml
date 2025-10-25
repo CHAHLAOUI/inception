@@ -5,7 +5,7 @@ services:
     build: ./requirements/mariadb
     container_name: mariadb
     ports:
-      - "3306:3306"
+      - "3306"
     restart: always
     env_file: .env
     secrets:
@@ -20,7 +20,7 @@ services:
     build: ./requirements/wordpress
     container_name: wordpress
     ports:
-      - "9000:9000"
+      - "9000"
     restart: always
     env_file: .env
     depends_on:
